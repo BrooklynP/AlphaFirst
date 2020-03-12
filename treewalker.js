@@ -29,6 +29,7 @@ comments and change this file as much as you want; there are a lot of comments.
 const fs = require("fs");
 class TreeWalker {
   maximumPrintDepth = 2;
+  hasFinishedSearching = false;
 
   constructor(filePath = null) {
     //initialization
@@ -53,8 +54,8 @@ class TreeWalker {
     }
 
     if (folderName === '/') {
-      console.log("You are now in the root");
       this.currentFolder = '/';
+      console.log("cd", this.currentFolder);
       return
     }
 
@@ -70,7 +71,7 @@ class TreeWalker {
 
   checkIfChildDirectoryExists(childrenDirectories) {
     if (childrenDirectories.length === 0) {
-      console.log(this.currentFolder);
+      console.log("cd", this.currentFolder);
       return;
     }
     let currentDirectoryChildren = fs.readdirSync(this.currentFolder);
@@ -142,7 +143,41 @@ class TreeWalker {
     this.walk(this.currentFolder, 1);
   }
 
+  searchTree(directory, query, currentDepth){
+    if(this.hasFinishedSearching){
+      return;
+    }
+    if (currentDepth > this.maximumPrintDepth) {
+      console.log("file not found :(");
+      this.hasFinishedSearching = true;
+      return
+    }
+
+    currentDepth++;
+
+    let organisedDirectory = this.organiseIntoFilesAndFolders(fs.readdirSync(directory), directory);
+
+    organisedDirectory.files.forEach((fileName)=>{
+      if(fileName.indexOf(query)!= -1){
+        console.log("File found at", directory + fileName);
+        this.hasFinishedSearching = true;
+        return;
+      }
+    })
+
+    organisedDirectory.folders.forEach((folder) => {
+      if(folder.indexOf(query)!= -1){
+        console.log("Folder found at", directory + folder);
+        this.hasFinishedSearching = true;
+        return;
+      }
+      this.searchTree(organisedDirectory.absolutePath + '/' + folder, query, currentDepth);
+    });  
+  }
+
   search(name) {
+    this.hasFinishedSearching = false;
+    this.searchTree(this.currentFolder, name, 0);
     //write code here
     /*
       return the filepath of the first file/folder found than matches "name"
