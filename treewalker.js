@@ -1,38 +1,10 @@
-/*
-
-Hello Brooklyn, this is a slightly difficult task. But much like
-flex tape, here at AlphaFirst ltd. we expect you to fix a lotta damage!
-https://www.youtube.com/watch?v=0xzN6FM5x_E
-
----Notes---
-This is "open book", which means you're allowed to use the internet, and other
-sources, to research solutions.
-
-You are expected to come up with 3 functions
--changeDirectory
--print
--search
-
-Explanations for these are provided in the class functions below.
-
---Suggested search terms--
--recursion / recursive functions
--treewalking
--JSON (JavaScript Object Notation)
-
-You're welcome/encouraged to add any personal little touches/flares etc. As
-long as you do what has been asked in the tasks. Also, feel free to delete my
-comments and change this file as much as you want; there are a lot of comments.
-*/
-
-//--Main--//
 const fs = require("fs");
+
 class TreeWalker {
   maximumPrintDepth = 2;
   hasFinishedSearching = false;
 
   constructor(filePath = null) {
-    //initialization
     if (filePath) {
       this.load(filePath);
     }
@@ -178,14 +150,6 @@ class TreeWalker {
   search(name) {
     this.hasFinishedSearching = false;
     this.searchTree(this.currentFolder, name, 0);
-    //write code here
-    /*
-      return the filepath of the first file/folder found than matches "name"
-  
-      Example     Input:    name="2019-01-26 Marvin.zip"
-                  Output:   "/Local Projects/Marvin/Backups/2019-01-26 Marvin.zip"
-    */
-
   }
 
   //Loads folder tree data from a json file
