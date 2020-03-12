@@ -25,26 +25,14 @@ long as you do what has been asked in the tasks. Also, feel free to delete my
 comments and change this file as much as you want; there are a lot of comments.
 */
 
-class Directory{
-  constructor(setPath='/', setDepth = 0, setChildren = []){
-    path =  setPath;
-    depth = setDepth;
-    children = setChildren;
-  }
-
-  path = '/';
-  depth = 0;
-  children = [];
-}
-
 //--Main--//
 const fs = require("fs");
-class TreeWalker{
+class TreeWalker {
   maximumPrintDepth = 2;
 
-  constructor(filePath=null){
+  constructor(filePath = null) {
     //initialization
-    if(filePath){
+    if (filePath) {
       this.load(filePath);
     }
     this.data = {}
@@ -53,24 +41,24 @@ class TreeWalker{
 
 
   /**Takes path to change to as string. e.g. /users/brooklyn/desktop and recursively checks if child exists before moving in */
-  changeDirectory(folderName){
-    if(!folderName){
+  changeDirectory(folderName) {
+    if (!folderName) {
       console.error("Hey, Give me something to work with")
       return
     }
 
-    if(typeof folderName != 'string'){
+    if (typeof folderName != 'string') {
       console.error("Hey, That's not a string!");
       return
     }
 
-    if(folderName === '/'){
+    if (folderName === '/') {
       console.log("You are now in the root");
       this.currentFolder = '/';
       return
     }
 
-    if(folderName.startsWith('/')){
+    if (folderName.startsWith('/')) {
       this.currentFolder = '/';
       this.folderName = this.currentFolder.substring(1);
     }
@@ -80,79 +68,85 @@ class TreeWalker{
     this.checkIfChildDirectoryExists(folderNameAsArray);
   }
 
-  checkIfChildDirectoryExists(childrenDirectories){
-    if(childrenDirectories.length === 0){
+  checkIfChildDirectoryExists(childrenDirectories) {
+    if (childrenDirectories.length === 0) {
       console.log(this.currentFolder);
       return;
     }
     let currentDirectoryChildren = fs.readdirSync(this.currentFolder);
-    currentDirectoryChildren = currentDirectoryChildren.map(element=>element.toLowerCase());
+    currentDirectoryChildren = currentDirectoryChildren.map(element => element.toLowerCase());
 
-    if(currentDirectoryChildren.includes(childrenDirectories[0].toLowerCase())){
+    if (currentDirectoryChildren.includes(childrenDirectories[0].toLowerCase())) {
       this.currentFolder += childrenDirectories[0] + '/';
       childrenDirectories.shift();
 
       this.checkIfChildDirectoryExists(childrenDirectories);
     }
-    else{
+    else {
       console.error("There is no child /" + childrenDirectories[0] + "/ In " + this.currentFolder);
       console.log(this.currentFolder);
       return
     }
   }
 
-  walk(directory, currentDepth){
-    if(currentDepth > this.maximumPrintDepth){
+  walk(directory, currentDepth) {
+    if (currentDepth > this.maximumPrintDepth + 1) {
       return;
     }
+    currentDepth++;
 
-    let listOfDirectoryChildren = fs.readdirSync(directory);
-    listOfDirectoryChildren.forEach((child)=>{
-      let stats = fs.statSync(directory + '/' + child);
-      if(stats.isDirectory()) {
-        console.log('*' + child)
-        this.walk(directory + '/' + child, currentDepth++);
+    let organisedDirectory = this.organiseIntoFilesAndFolders(fs.readdirSync(directory), directory);
+
+    organisedDirectory.folders.forEach((folder) => {
+      console.log(this.produceStringToPrint('*' + folder, currentDepth))
+      this.walk(organisedDirectory.absolutePath + '/' + folder, currentDepth);
+    });
+    organisedDirectory.files.forEach((file) => {
+      console.log(this.produceStringToPrint(file, currentDepth))
+    });
+  }
+
+  produceStringToPrint(name, depth) {
+    let stringToPrint = '';
+    for (let i = 0; i < depth; i++) {
+      stringToPrint = '  ' + stringToPrint;
+    }
+    stringToPrint += name;
+    return stringToPrint;
+  }
+
+  organiseIntoFilesAndFolders(directory, directoryPath) {
+    let newObject = {
+      absolutePath: directoryPath,
+      folders: [],
+      files: []
+    }
+
+    directory.forEach((child) => {
+      let stats = fs.statSync(directoryPath + '/' + child);
+      if (stats.isDirectory()) {
+        newObject.folders.push(child);
       }
-      else{
-        console.log(child);
+      else {
+        newObject.files.push(child);
       }
     })
 
+    newObject.folders = newObject.folders.sort();
+    newObject.files = newObject.files.sort();
+
+    return newObject;
   }
 
-  print(){
-    this.walk(this.currentFolder, 0);
-
-    //Write code here
-    /*
-      Print the current folder in alphabetical order (and its children) to the
-      console.
-
-      --Formatting Rules--
-      -folders should be prefixed with a *
-      -files should be shown after folders
-      -files/folders should be sorted in alphabetical order
-      -sub files/folders should be indented with two spaces
-
-      See below for example console output:
-
-      *folder
-        *AAA Sub folder
-          *DDD Sub folder
-          b file.sql
-        *BBB Sub folder
-          a file.js
-          z file.sql
-        a file.js
-        z file.sql
-    */
+  print() {
+    this.walk(this.currentFolder, 1);
   }
 
-  search(name){
+  search(name) {
     //write code here
     /*
       return the filepath of the first file/folder found than matches "name"
-
+  
       Example     Input:    name="2019-01-26 Marvin.zip"
                   Output:   "/Local Projects/Marvin/Backups/2019-01-26 Marvin.zip"
     */
