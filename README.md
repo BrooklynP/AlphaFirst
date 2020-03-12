@@ -1,7 +1,6 @@
 # The AlphaFirst Test by Brooklyn
 
 ## Installation
-First Clone the repo
 
 There is a main.js file to test with. Please change directory to the test folder path within this repo by changing the path with
 ```javascript
