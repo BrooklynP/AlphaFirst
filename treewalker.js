@@ -38,8 +38,10 @@ class Directory{
 }
 
 //--Main--//
-var fs = require("fs");
+const fs = require("fs");
 class TreeWalker{
+  maximumPrintDepth = 2;
+
   constructor(filePath=null){
     //initialization
     if(filePath){
@@ -99,8 +101,28 @@ class TreeWalker{
     }
   }
 
-  print(maxDepth=2){
-    // objectToPrint.children = fs.readdirSync(this.currentFolder);
+  walk(directory, currentDepth){
+    if(currentDepth > this.maximumPrintDepth){
+      return;
+    }
+
+    let listOfDirectoryChildren = fs.readdirSync(directory);
+    listOfDirectoryChildren.forEach((child)=>{
+      let stats = fs.statSync(directory + '/' + child);
+      if(stats.isDirectory()) {
+        console.log('*' + child)
+        this.walk(directory + '/' + child, currentDepth++);
+      }
+      else{
+        console.log(child);
+      }
+    })
+
+  }
+
+  print(){
+    this.walk(this.currentFolder, 0);
+
     //Write code here
     /*
       Print the current folder in alphabetical order (and its children) to the
