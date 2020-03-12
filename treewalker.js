@@ -136,10 +136,9 @@ class TreeWalker {
         return;
       }
     })
-
     organisedDirectory.folders.forEach((folder) => {
       if(folder.indexOf(query)!= -1){
-        console.log("Folder found at", directory + folder);
+        console.log("Folder found at", directory + '/' + folder);
         this.hasFinishedSearching = true;
         return;
       }
@@ -149,6 +148,9 @@ class TreeWalker {
 
   search(name) {
     this.hasFinishedSearching = false;
+    if(this.currentFolder.match(/\/$/)){
+      this.currentFolder = this.currentFolder.slice(0, -1);
+    }
     this.searchTree(this.currentFolder, name, 0);
   }
 
